@@ -1,4 +1,4 @@
-import socket, sys, threading, os
+import socket, sys, threading, os, time
 
 DEFAULT_PORT = 8080             # System default port
 MAX_CONNECTION = 50             # Maximum backlog of requests
@@ -8,6 +8,8 @@ cache ={}                       # chaceh implemented using dictionary (Hashmap) 
 DEBUG = False                   # Boolean value to activate debug print statments
 ADVANCED_MODE = False           # Boolean value to activate advanced user mode (Displays more data... raw data)
 theBlacklist = []               # implemented using a list so you can .remove aswell as append
+t0 = 0
+t1 = 0
 
 
 # Main Method, this serves as the main menu of the managmanet console.
@@ -56,9 +58,11 @@ def main():
 # This function sets up or initial socket for out proxy server and binds it to our port on our local machine
 # it then recives data through that connection and creates threads to handle the requests
 def run_proxy():
-    port = int(raw_input("Enter a listning port value or enter 'd' to use system default 8080: "))
+    port = str(raw_input("Enter a listning port value or enter 'd' to use system default 8080: "))
     if port == 'd':
         port = DEFAULT_PORT
+    else:
+        port = int(port)
 
     if DEBUG == True:
         print('-------------------------------DEBUG-------------------------------------')
@@ -97,6 +101,8 @@ def run_proxy():
 # This method is our parser for HTTP Requests. Upon reciving a request and pulling the data from the socket it parses the data
 # into two sections, The first is the absolute URI and the second is the URL of the website being aceesed.
 def HTTPRequestParcer(conn, request):
+    global t0
+    t0 = time.time()
     try:
         first_line = request.split('\n')[0]
         url = first_line.split(' ')[1]
@@ -156,9 +162,12 @@ def HTTPRequestParcer(conn, request):
 # if the info is not in  the cahce it will make a request to the server for the web page and the cache that info for the future
 # it also checks for requests made to blacklisted url's and ends them
 def push_request(webserver, port, conn, request):
+    global theBlacklist
+    global t0
+    global t1
+    checkURL = 'http://' + webserver
     try:
-        checkURL = 'http://' + webserver        #url plus http part
-        if checkURL or webserver in theBlacklist:   #checks in the url or full url are in the blacklist
+        if checkURL in theBlacklist:   #checks in the url or full url are in the blacklist
             print("Looks like you are trying to access a blacklisted sight -_- move along") #if one or both are then tell user they are caught out
             conn.close()    #close the connection
             return      #end process
@@ -167,6 +176,8 @@ def push_request(webserver, port, conn, request):
             conn.send(cache[request])  # if it is there, send data to browser
             conn.close()               # close connection
             print("Cache hit on " + webserver + ", sent page to browser") # inform user of what we have done
+            t1 = time.time()
+            print('process took ' + str(t1-t0) + ' seconds to retrieve from cache' )
             return  # end function with no return value
 
         #If the website is not in the cache we need to get it. sends request to a server for webpage
@@ -187,10 +198,13 @@ def push_request(webserver, port, conn, request):
 
             s.close() # close the proxy to webserver connection
             conn.close() # close connection from client to proxy
+            t1 = time.time()
+            print('process took ' + str(t1-t0) + ' seconds to retrieve from server' )
     except socket.error:    # handle errors, what kind of a computer scientist would we be if we didn't? hahaha
         s.close()   # same closes as before then exit system
         conn.close()
         sys.exit()
+        
 
     except KeyboardInterrupt:  # same as above except in response to keyboard interupt and tells user its quiting, this ones intentional
         s.close()
