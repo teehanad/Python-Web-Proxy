@@ -7,6 +7,7 @@ cache ={}                       # chaceh implemented using dictionary (Hashmap) 
                                 # storing key value pairs enables access of stored data by URL. efficieny :)
 DEBUG = False                   # Boolean value to activate debug print statments
 ADVANCED_MODE = False           # Boolean value to activate advanced user mode (Displays more data... raw data)
+TIMER = False                   # Boolean value to activate time prints
 theBlacklist = []               # implemented using a list so you can .remove aswell as append
 t0 = 0
 t1 = 0
@@ -177,7 +178,10 @@ def push_request(webserver, port, conn, request):
             conn.close()               # close connection
             print("Cache hit on " + webserver + ", sent page to browser") # inform user of what we have done
             t1 = time.time()
-            print('process took ' + str(t1-t0) + ' seconds to retrieve from cache' )
+            if TIMER == True:
+                print('-------------------------------TIMER-------------------------------------')
+                print('process took ' + str(t1-t0) + ' seconds to retrieve from cache' )
+                print('-------------------------------TIMER-------------------------------------')
             return  # end function with no return value
 
         #If the website is not in the cache we need to get it. sends request to a server for webpage
@@ -199,7 +203,11 @@ def push_request(webserver, port, conn, request):
             s.close() # close the proxy to webserver connection
             conn.close() # close connection from client to proxy
             t1 = time.time()
-            print('process took ' + str(t1-t0) + ' seconds to retrieve from server' )
+            if TIMER == True:
+                print('-------------------------------TIMER-------------------------------------')
+                print('process took ' + str(t1-t0) + ' seconds to retrieve from server' )
+                print('-------------------------------TIMER-------------------------------------')
+
     except socket.error:    # handle errors, what kind of a computer scientist would we be if we didn't? hahaha
         s.close()   # same closes as before then exit system
         conn.close()
@@ -217,10 +225,12 @@ def push_request(webserver, port, conn, request):
 def options():
     global DEBUG
     global ADVANCED_MODE
+    global TIMER
     finishedOptions = False   
     print('-----------------------------------------------------------------')
     print("Welcome to the options menu!")
     print("Type 'DEBUG' to toggle debug mode")
+    print("Type 'TIMER' to toggle timer mode")
     print("Type 'ADVANCED' to toggle display or more complex and raw data ")
     print("Type 'BLACKLIST' to enter the URL blacklisting menue" )
     print("When you are finished type 'QUIT'")            # Eanbles looping until correct input 
@@ -238,6 +248,14 @@ def options():
                 print('Debug mode: ' + str(DEBUG))
                 print('-----------------------------------------------------------------')
 
+            elif(inputText == 'TIMER'):          # if user chooses to debug then check current state and toggle to other
+                if TIMER == False:
+                    TIMER = True
+                else:
+                    TIMER = False
+                print('-----------------------------------------------------------------')
+                print('Timer mode: ' + str(TIMER))
+                print('-----------------------------------------------------------------')
 
             elif(inputText == 'ADVANCED'):        # same as above but for advanced mode
                 if ADVANCED_MODE == False:
