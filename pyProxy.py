@@ -3,8 +3,8 @@ import socket, sys, threading, os, time
 DEFAULT_PORT = 8080             # System default port
 MAX_CONNECTION = 50             # Maximum backlog of requests
 BUFFER_SIZE = 5120              # buffer size     
-cache ={}                       # chaceh implemented using dictionary (Hashmap) as is the easiest option
-                                # storing key value pairs enables access of stored data by URL. efficieny :)
+cache ={}                       # cache implemented using dictionary (Hashmap)
+                                # storing key value pairs enables access of stored data by URL.
 DEBUG = False                   # Boolean value to activate debug print statments
 ADVANCED_MODE = False           # Boolean value to activate advanced user mode (Displays more data... raw data)
 TIMER = False                   # Boolean value to activate time prints
@@ -59,8 +59,8 @@ def main():
 # This function sets up or initial socket for out proxy server and binds it to our port on our local machine
 # it then recives data through that connection and creates threads to handle the requests
 def run_proxy():
-    port = str(raw_input("Enter a listning port value or enter 'd' to use system default 8080: "))
-    if port == 'd':
+    port = str(raw_input("Enter a listning port value or enter 'D' to use system default 8080: "))
+    if port == 'D':
         port = DEFAULT_PORT
     else:
         port = int(port)
@@ -102,8 +102,8 @@ def run_proxy():
 # This method is our parser for HTTP Requests. Upon reciving a request and pulling the data from the socket it parses the data
 # into two sections, The first is the absolute URI and the second is the URL of the website being aceesed.
 def HTTPRequestParcer(conn, request):
-    global t0
-    t0 = time.time()
+    global t0 
+    t0 = time.time() #timestamp t0
     try:
         first_line = request.split('\n')[0]
         url = first_line.split(' ')[1]
@@ -118,8 +118,6 @@ def HTTPRequestParcer(conn, request):
 
         #TODO: FIX THIS! For now if a HTTPS request is made I have set the proxy to send a kind message to users to tell them 
         # sorry that I could'nt get the proxy to handle https requests yet but I will continue to look into it and hopfully fix it.
-        # I know its an assignment but its just nice incase anyone wants to play around with it if i put it on mu github later :) 
-        # I have tried to implement it using the requests library, tornando and a few other libraries. I am determind I'll handle it eventually.
         if 'CONNECT' in first_line:
             print("Unfortunatly this proxy can't handle HTTPS requests just yet, maybe in a future update ;) - Adam - Dev")
             
@@ -177,10 +175,10 @@ def push_request(webserver, port, conn, request):
             conn.send(cache[request])  # if it is there, send data to browser
             conn.close()               # close connection
             print("Cache hit on " + webserver + ", sent page to browser") # inform user of what we have done
-            t1 = time.time()
+            t1 = time.time() #timestamp t1
             if TIMER == True:
                 print('-------------------------------TIMER-------------------------------------')
-                print('process took ' + str(t1-t0) + ' seconds to retrieve from cache' )
+                print('process took ' + str(t1-t0) + ' seconds to retrieve from cache' ) #prints Timestamp 1 - Timestamp 0 go give elapsed time
                 print('-------------------------------TIMER-------------------------------------')
             return  # end function with no return value
 
@@ -205,10 +203,10 @@ def push_request(webserver, port, conn, request):
             t1 = time.time()
             if TIMER == True:
                 print('-------------------------------TIMER-------------------------------------')
-                print('process took ' + str(t1-t0) + ' seconds to retrieve from server' )
+                print('process took ' + str(t1-t0) + ' seconds to retrieve from server' ) #prints Timestamp 1 - Timestamp 0 go give elapsed time
                 print('-------------------------------TIMER-------------------------------------')
 
-    except socket.error:    # handle errors, what kind of a computer scientist would we be if we didn't? hahaha
+    except socket.error:    
         s.close()   # same closes as before then exit system
         conn.close()
         sys.exit()
@@ -248,7 +246,7 @@ def options():
                 print('Debug mode: ' + str(DEBUG))
                 print('-----------------------------------------------------------------')
 
-            elif(inputText == 'TIMER'):          # if user chooses to debug then check current state and toggle to other
+            elif(inputText == 'TIMER'):          # if user chooses to Timer then check current state and toggle to other
                 if TIMER == False:
                     TIMER = True
                 else:
